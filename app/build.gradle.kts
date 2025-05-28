@@ -60,7 +60,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":sdk"))
     implementation(files("libs/wpimath-java-2023.4.3.jar"))
     implementation("org.ejml:simple:0.30")
 //    implementation("com.github.alrazzi1:AndroidUSBCamera:3.3.4")

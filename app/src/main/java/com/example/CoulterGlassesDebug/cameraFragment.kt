@@ -37,81 +37,14 @@ class cameraFragment() : CameraFragment() {
         ) {
 //            Log.d(LOG_TAG, "Width: $width, Height: $height")
             if (data != null) {
-                var result = detectApriltags(data, width, height);
-                printTransformOutput(result);
-                MainActivity.instance?.sendToESP(result);
+                MainActivity.instance?.sendToESP();
             }
-        }
-    }
-    private fun detectApriltags(
-        data: ByteArray,
-        width: Int,
-        height: Int,
-    ): Result {
-        val frameSize = frameDimensions?.width!! * frameDimensions?.height!!;
-        val yArray = ByteArray(frameSize)//320*240
-
-        System.arraycopy(data, 0, yArray, 0, frameSize)//320*240
-        val ids = intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-        var result = apriltag.externalCameraAnalysis(yArray, width, height, ids);
-        Log.d("april #", result.numDetections.toString());
-        return result;
-    }
-
-    private fun printTransformOutput(result: Result) {
-        val transform_output_tv: TextView = requireActivity().findViewById<TextView>(
-            com.example.CoulterGlassesDebug.R.id.transform_output);
-        if(result.numDetections>0){
-            val transformPacket = result.camToTargetPacket;
-            val (x,y,z) = Helper.roundToDecimalPlaces(
-                listOf(
-                    transformPacket!!.x,
-                    transformPacket!!.y,
-                    transformPacket!!.z),
-                2)
-            val (yaw, pitch, roll) =
-                Helper.roundToDecimalPlaces(
-                    Helper.radiansToDegrees(
-                listOf(
-                    transformPacket!!.x,
-                    transformPacket!!.y,
-                    transformPacket!!.z)),
-
-                0);
-            val (cx,cy) =
-                Helper.roundToDecimalPlaces(
-                        listOf(
-                            result.center_pixels?.get(0),
-                            result.center_pixels?.get(1)
-                        ),0);
-
-            transform_output_tv.text = "x: $x, y: $y, z: $z,\n yaw: $yaw, pitch: $pitch, roll: $roll, cx: $cx, cy: $cy";
-        }else{
-            transform_output_tv.text = "No Apriltags"
         }
     }
 
 companion object{
     @JvmStatic
     public var frameDimensions: FrameDimensions? = FrameDimensions(320,240);//3840,2160
-    @JvmStatic
-    fun getCamToTarget(result: Result): Transform3d?{
-        if(result.numDetections>0){
-            val transformPacket = result.camToTargetPacket;
-
-            val translation = Translation3d(transformPacket!!.x,transformPacket!!.y,transformPacket!!.z);
-
-            val r_matrix: Matrix<N3, N3> = MatBuilder(Nat.N3(), Nat.N3()).fill(
-                transformPacket.r1, transformPacket.r2, transformPacket.r3,
-                transformPacket.r4, transformPacket.r5, transformPacket.r6,
-                transformPacket.r7, transformPacket.r8, transformPacket.r9
-            );
-            val rotation = Rotation3d(r_matrix);
-            val camToTarget = Transform3d(translation, rotation);
-            return camToTarget;
-        }
-        return null;
-    }
 }
 
     // if you want offscreen render
