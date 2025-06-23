@@ -3,101 +3,76 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/black"
     android:orientation="horizontal"
     tools:context=".MainActivity">
 
+    <!-- Fragment Container -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        >
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Right Side Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        >
+        android:background="#E4BE9E">
 
+        <!-- First Row of Switches -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <Switch
+                android:id="@+id/front_left_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Front Left" /> />
+
+            <Switch
+                android:id="@+id/front_right_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Front right" />
+        </LinearLayout>
+
+        <!-- Second Row of Switches -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="1"
-            >
-            <Button
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:id="@+id/scan_btn"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="scan"
-                android:padding="0dp"
-                android:background="@color/primary"
-                android:textSize="30sp"
+            android:orientation="horizontal">
 
-                />
-
-            <EditText
-                android:id="@+id/atTargetID"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <Switch
+                android:id="@+id/back_left_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:hint="Enter a number"
-                android:inputType="number"
-                android:maxLength="1"
-                android:text="0"
-                android:textColor="#000000"
-                android:background="@color/secondary"
-                android:cursorVisible="false"
-                android:textSize="30sp"
-                />
+                android:text="Back left"/>
+
+            <Switch
+                android:id="@+id/back_right_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Back right" />
         </LinearLayout>
 
-        <TextView
-            android:layout_weight="1"
-            android:id="@+id/ble_status"
+        <!-- SeekBar -->
+        <SeekBar
+            android:id="@+id/motor_strength_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:textColor="@color/white"
-            android:text="BLE STATUS"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:gravity="center"
-            />
-
-        <TextView
-            android:layout_weight="1"
-            android:id="@+id/polar_output"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/tertiary"
-            android:textColor="@color/black"
-            android:text="No Data"
-            android:gravity="center"
-            android:textSize="30sp"
-            />
-
-        <TextView
-            android:layout_weight="1"
-            android:id="@+id/transform_output"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/quarternary"
-            android:textColor="@color/white"
-            android:text="No Data"
-            android:gravity="center"
-            />
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
-
 </LinearLayout>

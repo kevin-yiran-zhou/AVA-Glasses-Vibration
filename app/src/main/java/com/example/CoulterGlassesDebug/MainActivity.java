@@ -14,6 +14,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import com.example.CoulterGlassesDebug.databinding.ActivityMainBinding;
 import edu.wpi.first.math.geometry.Transform3d;
 
 import android.os.Handler;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private final static int REQUEST_CAMERA = 0;
@@ -35,10 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private MetadataManager metadataManager;
     private ActivityMainBinding viewBinding;
     private final String LOG_TAG = "MAIN_LOG";
-    private int targetId = 0;
-    private static double TURN_THRESHOLD = 5;
-    private Handler handler;
-    private Runnable sendRunnable;
+
+    private int[] motor_status = {0,0,0,0};
+    private int motor_strength=0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,59 +55,62 @@ public class MainActivity extends AppCompatActivity {
         soundManager = SoundManager.getInstance(this);
         metadataManager = MetadataManager.getInstance(this);
 
-        EditText targetIdEt = (EditText) findViewById(R.id.atTargetID);
-        targetIdEt.setText(targetId + "");
-        targetIdEt.addTextChangedListener(new TextWatcher() {
+        setupSwitches();
+        setupSeekBar();
+    }
+    private void setupSeekBar(){
+        SeekBar seekBar = findViewById(R.id.motor_strength_bar);
+        seekBar.setMax(100); // Set max value (optional)
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void afterTextChanged(Editable s) {
-                char[] newId = {'0'};
-                s.getChars(0, s.length(), newId, 0);
-                targetId = Character.getNumericValue(newId[0]);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // Called when progress is changed
+                motor_strength=progress;
+                sendToESP();
             }
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Optional: user started dragging
+            }
+
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Optional: user released the SeekBar
+            }
         });
 
-        // Initialize the Handler and Runnable to call sendToESP periodically
-        handler = new Handler();
-        sendRunnable = new Runnable() {
-            @Override
-            public void run() {
-                sendToESP();  // Call sendToESP
-                handler.postDelayed(this, 33); // Delay of ~33ms (~30 calls per second)
-            }
-        };
     }
-    int num=0;
+    private void setupSwitches(){
+        Switch front_left_switch = findViewById(R.id.front_left_switch),
+            front_right_switch = findViewById(R.id.front_right_switch),
+            back_left_switch = findViewById(R.id.back_left_switch),
+            back_right_switch = findViewById(R.id.back_right_switch);
+
+        setupSwitch(front_left_switch,0);
+        setupSwitch(front_right_switch,1);
+        setupSwitch(back_left_switch,2);
+        setupSwitch(back_right_switch,3);
+    }
+    private void setupSwitch(Switch sw, int index) {
+        sw.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            motor_status[index]=isChecked?1:0;
+            sendToESP();
+        });
+    }
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @SuppressLint("MissingPermission")
     public void sendToESP() {
         if (soundManager.timeSinceCompleted() > 0) {
             soundManager.play(R.raw.turn_left);
         }
-//        metadataManager.send(num + " " + num + " " + num + " " + num );
+        String output = java.util.Arrays.stream(motor_status)
+                .map(i -> i * motor_strength)
+                .mapToObj(String::valueOf)
+                .collect(java.util.stream.Collectors.joining(" "));
 
-        long currentMillis = System.currentTimeMillis();
-        String timeString = String.valueOf(currentMillis);
-        metadataManager.send(timeString);
-        num+=255/30;
-        num%=255;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Start sending data when the activity is resumed
-        handler.post(sendRunnable);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Stop sending data when the activity is paused
-        handler.removeCallbacks(sendRunnable);
+        metadataManager.send(output);
+        Log.d(LOG_TAG, output);
     }
 
     public void replaceDemoFragment(Fragment fragment) {
