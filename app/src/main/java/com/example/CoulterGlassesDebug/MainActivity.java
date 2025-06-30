@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void setupSeekBar(){
         SeekBar seekBar = findViewById(R.id.motor_strength_bar);
-        seekBar.setMax(100); // Set max value (optional)
+        seekBar.setMax(200); // Set max value (optional)
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @SuppressLint("MissingPermission")
     public void sendToESP() {
-        if (soundManager.timeSinceCompleted() > 0) {
-            soundManager.play(R.raw.turn_left);
-        }
         String output = java.util.Arrays.stream(motor_status)
                 .map(i -> i * motor_strength)
                 .mapToObj(String::valueOf)
