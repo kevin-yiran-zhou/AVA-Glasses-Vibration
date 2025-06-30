@@ -13,11 +13,22 @@ public class MetadataManager {
     private static MetadataManager instance;
 
     MediaSession mediaSession;
+    private static final String[] METADATA_KEYS = new String[]{
+            MediaMetadata.METADATA_KEY_TITLE,
+            MediaMetadata.METADATA_KEY_ARTIST,
+            MediaMetadata.METADATA_KEY_ALBUM,
+            MediaMetadata.METADATA_KEY_AUTHOR,
+            MediaMetadata.METADATA_KEY_COMPOSER,
+            MediaMetadata.METADATA_KEY_WRITER
+    };
+    private int currentKeyIndex = 0;
     MetadataManager(AppCompatActivity context){
         mediaSession = new MediaSession(context , "AVA-Android");
     }
     @SuppressLint("MissingPermission")
     void destroy() {
+        mediaSession.setActive(false);
+        mediaSession.release();
     }
     public static MetadataManager getInstance(AppCompatActivity activity) {
         if (instance != null) {
@@ -34,6 +45,7 @@ public class MetadataManager {
         //set the metadata to send, this is the text that will be displayed
         //if the strings are too long they might be cut off
         //you need to experiment with the receiving device to know max length
+        String currentKey = METADATA_KEYS[currentKeyIndex];
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_TITLE, msg)
                 .build();
@@ -41,5 +53,6 @@ public class MetadataManager {
         //other metadata from apps will not be shown
         mediaSession.setActive(true);
         mediaSession.setMetadata(metadata);
+        currentKeyIndex = (currentKeyIndex + 1) % METADATA_KEYS.length;
     }
 }

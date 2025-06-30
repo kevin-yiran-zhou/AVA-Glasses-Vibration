@@ -37,7 +37,6 @@ class cameraFragment() : CameraFragment() {
         ) {
 //            Log.d(LOG_TAG, "Width: $width, Height: $height")
             if (data != null) {
-                MainActivity.instance?.sendToESP();
             }
         }
     }

@@ -41,6 +41,30 @@ public class MainActivity extends AppCompatActivity {
 
     private int[] motor_status = {0,0,0,0};
     private int motor_strength=0;
+    private int frequency=0;
+    private double duty_cycle=0;
+
+    private final Handler pwmHandler = new Handler();
+    private boolean pwmRunning = false;
+    private final Runnable pwmRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!pwmRunning || frequency <= 0) return;
+
+            double T = 1.0 / frequency;
+            long t1 = (long) (duty_cycle * T * 1000); // milliseconds
+            long t2 = (long) ((1.0 - duty_cycle) * T * 1000);
+
+            // Send signal during t1
+            sendMotorSignal();
+
+            // After t1, stop signal
+            pwmHandler.postDelayed(() -> {
+                sendNoSignal();  // Or skip sending if ESP maintains previous state
+                pwmHandler.postDelayed(pwmRunnable, t2);
+            }, t1);
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,30 +80,42 @@ public class MainActivity extends AppCompatActivity {
         metadataManager = MetadataManager.getInstance(this);
 
         setupSwitches();
-        setupSeekBar();
+        setupSeekBars();
     }
-    private void setupSeekBar(){
-        SeekBar seekBar = findViewById(R.id.motor_strength_bar);
-        seekBar.setMax(200); // Set max value (optional)
+    private void setupSeekBars(){
+        setupSeekBar(R.id.seekbar_motor_strength, 200, (progress, fromUser) -> {
+            motor_strength = progress;
+            restartPWM();
+        });
+
+        setupSeekBar(R.id.seekbar_frequency, 10, (progress, fromUser) -> {
+            frequency = progress;
+            restartPWM();
+        });
+
+        setupSeekBar(R.id.seekbar_duty_cycle, 100, (progress, fromUser) -> {
+            duty_cycle = progress/100.0;
+            restartPWM();
+        });
+
+    }
+    public interface OnSeekBarChanged {
+        void onProgressChanged(int progress, boolean fromUser);
+    }
+    private void setupSeekBar(int seekBarId, int maxValue, OnSeekBarChanged callback) {
+        SeekBar seekBar = findViewById(seekBarId);
+        seekBar.setMax(maxValue);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Called when progress is changed
-                motor_strength=progress;
-                sendToESP();
+                callback.onProgressChanged(progress, fromUser);
             }
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // Optional: user started dragging
-            }
-
+            public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Optional: user released the SeekBar
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
     }
     private void setupSwitches(){
         Switch front_left_switch = findViewById(R.id.front_left_switch),
@@ -95,19 +131,30 @@ public class MainActivity extends AppCompatActivity {
     private void setupSwitch(Switch sw, int index) {
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> {
             motor_status[index]=isChecked?1:0;
-            sendToESP();
+            restartPWM();
         });
     }
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    @SuppressLint("MissingPermission")
-    public void sendToESP() {
+    private void sendMotorSignal() {
         String output = java.util.Arrays.stream(motor_status)
                 .map(i -> i * motor_strength)
                 .mapToObj(String::valueOf)
                 .collect(java.util.stream.Collectors.joining(" "));
-
         metadataManager.send(output);
-        Log.d(LOG_TAG, output);
+        Log.d(LOG_TAG, "SEND: " + output);
+    }
+
+    private void sendNoSignal() {
+        String output = "0 0 0 0";
+        metadataManager.send(output);
+        Log.d(LOG_TAG, "SEND: " + output);
+    }
+    private void restartPWM() {
+        pwmHandler.removeCallbacksAndMessages(null);
+        if (frequency > 0 && duty_cycle > 0) {
+            pwmRunning = true;
+            pwmHandler.post(pwmRunnable);
+        }
+        Log.d(LOG_TAG, "Restart PWM: freq=" + frequency + "Hz, duty=" + duty_cycle);
     }
 
     public void replaceDemoFragment(Fragment fragment) {
