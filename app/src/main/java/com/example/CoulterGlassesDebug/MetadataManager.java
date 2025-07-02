@@ -47,7 +47,7 @@ public class MetadataManager {
         //you need to experiment with the receiving device to know max length
         String currentKey = METADATA_KEYS[currentKeyIndex];
         MediaMetadata metadata = new MediaMetadata.Builder()
-                .putString(currentKey, msg)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, msg)
                 .build();
         //setting this active makes the metadata you pass show up
         //other metadata from apps will not be shown
