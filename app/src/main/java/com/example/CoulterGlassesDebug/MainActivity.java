@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
         viewBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(viewBinding.getRoot());
         getSupportActionBar().hide();
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        replaceDemoFragment(new cameraFragment());
+//        replaceDemoFragment(new cameraFragment());
 
         instance = this;
         soundManager = SoundManager.getInstance(this);
@@ -101,10 +101,10 @@ public class MainActivity extends AppCompatActivity {
             back_left_switch = findViewById(R.id.back_left_switch),
             back_right_switch = findViewById(R.id.back_right_switch);
 
-        setupSwitch(front_left_switch,0);
-        setupSwitch(front_right_switch,1);
-        setupSwitch(back_left_switch,2);
-        setupSwitch(back_right_switch,3);
+        setupSwitch(front_left_switch,3);
+        setupSwitch(front_right_switch,2);
+        setupSwitch(back_left_switch,1);
+        setupSwitch(back_right_switch,0);
     }
     private void setupSwitch(Switch sw, int index) {
         sw.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
+//        transaction.replace(R.id.fragment_container, fragment);
         transaction.commitAllowingStateLoss();
     }
 
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 if (hasCameraPermission == PermissionChecker.PERMISSION_DENIED) {
                     return;
                 }
-                replaceDemoFragment(new cameraFragment());
+//                replaceDemoFragment(new cameraFragment());
                 break;
             // Handle other request codes if needed
         }
