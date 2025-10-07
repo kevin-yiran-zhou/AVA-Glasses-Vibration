@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.CoulterGlassesDebug"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -61,6 +61,7 @@ dependencies {
     implementation("com.github.jiangdongguo.AndroidUSBCamera:libausbc:9b0843ff75")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.media:media:1.6.0")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
