@@ -17,6 +17,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "CoulterGlassesDebug"
 include(":app")
-//include(":libausbc")
-//include(":libnative")
-//include(":libuvc")

@@ -55,10 +55,6 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/wpimath-java-2023.4.3.jar"))
-    implementation("org.ejml:simple:0.30")
-//    implementation("com.github.alrazzi1:AndroidUSBCamera:3.3.4")
-    implementation("com.github.jiangdongguo.AndroidUSBCamera:libausbc:9b0843ff75")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.media:media:1.6.0")

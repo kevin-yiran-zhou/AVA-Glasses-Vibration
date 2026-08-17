@@ -1,40 +1,16 @@
 package com.example.CoulterGlassesDebug;
 
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.RECORD_AUDIO;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
-import android.widget.TextView;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.PermissionChecker;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.CoulterGlassesDebug.databinding.ActivityMainBinding;
 
-import edu.wpi.first.math.geometry.Transform3d;
-
-import android.os.Handler;
-import android.widget.Toast;
-
 public class MainActivity extends AppCompatActivity {
-    private final static int REQUEST_CAMERA = 0;
     public static MainActivity instance = null;
-    private SoundManager soundManager;
     private MetadataManager metadataManager;
     private ActivityMainBinding viewBinding;
     private final String LOG_TAG = "MAIN_LOG";
@@ -51,10 +27,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-//        replaceDemoFragment(new cameraFragment());
-
         instance = this;
-        soundManager = SoundManager.getInstance(this);
         metadataManager = MetadataManager.getInstance(this);
 
         setupSwitches();
@@ -119,42 +92,5 @@ public class MainActivity extends AppCompatActivity {
         output+=" "+motor_strength+" "+frequency+" "+duty_cycle;
         metadataManager.send(output);
         Log.d(LOG_TAG, "SEND: " + output);
-    }
-
-    public void replaceDemoFragment(Fragment fragment) {
-        int hasCameraPermission = PermissionChecker.checkSelfPermission(this, CAMERA);
-        if (hasCameraPermission != PermissionChecker.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, CAMERA)) {
-            }
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{CAMERA, WRITE_EXTERNAL_STORAGE, RECORD_AUDIO},
-                    REQUEST_CAMERA
-            );
-            return;
-        }
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.replace(R.id.fragment_container, fragment);
-        transaction.commitAllowingStateLoss();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode,
-            String[] permissions,
-            int[] grantResults
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-            case REQUEST_CAMERA:
-                int hasCameraPermission = PermissionChecker.checkSelfPermission(this, CAMERA);
-                if (hasCameraPermission == PermissionChecker.PERMISSION_DENIED) {
-                    return;
-                }
-//                replaceDemoFragment(new cameraFragment());
-                break;
-            // Handle other request codes if needed
-        }
     }
 }
